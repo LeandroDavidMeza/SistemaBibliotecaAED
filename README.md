@@ -7,6 +7,7 @@ Sistema para gestionar prestamos y devoluciones dentro de una biblioteca.
 - Kohler, Sofía Pilar
 - Meza, Leandro David
 - Sanz, Victoria
+
 COMISION ISI B (K1.2) 
 
 ## Descripción
