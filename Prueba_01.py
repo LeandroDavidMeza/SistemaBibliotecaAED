@@ -1,67 +1,147 @@
-def mostrar_menu():
-    print("\--- SISTEMA DE BIBLIOTECA ---")
-    print("Seleccione el número según la acción a ejecutar")
-    print("1. Registrar Préstamo")
-    print("2. Registrar Devolución (Con cálculo de multa)")
-    print("3. Ver Estadísticas y Caja")
-    print("4. Salir")
+# --- BASES DE DATOS GLOBALES (DICCIONARIOS) ---
+# Empezamos con algunos datos precargados para poder probar de entrada
+diccionario_usuarios = {
+    "123": {"nombre": "Ramiro Ponzio", "comision": "ISI"},
+    "456": {"nombre": "Victoria", "comision": "ISI"}
+}
 
-def ejecutar_sistema():
-    # --- CONTADORES Y ACUMULADORES ---
-    total_prestamos = 0
-    stock_libros = 5
-    dinero_recaudado = 0  # Acumulador para la plata de las multas
-    PRECIO_MULTA_DIARIA = 500  # Valor fijo por día de demora
+diccionario_libros = {
+    "L01": {"titulo": "El Aleph", "stock": 3, "pedidos": 0},
+    "L02": {"titulo": "Don Quijote", "stock": 2, "pedidos": 0}
+}
+
+diccionario_prestamos = {}
+contador_prestamos = 1
+
+
+def mostrar_menu():
+    print("\n=========================================")
+    print("      SISTEMA DE BIBLIOTECA - ISI")
+    print("=========================================")
+    print("1. [Vicky] Registrar Nuevo Usuario")
+    print("2. [Ramiro] Registrar Préstamo (Enlazado)")
+    print("3. Ver Todos los Préstamos Activos")
+    print("4. Ver Inventario de Libros")
+    print("5. Salir")
+    print("=========================================")
+
+
+def registrar_usuario():
+    print("\n[MÓDULO: REGISTRAR NUEVO USUARIO]")
+    dni = input("Ingrese el DNI del nuevo usuario: ")
     
+    # Validaciones de DNI
+    if not dni.isdigit():
+        print("❌ Error: El DNI debe contener únicamente números.")
+        return
+    if dni in diccionario_usuarios:
+        print("❌ Error: Ya existe un usuario registrado con ese DNI.")
+        return
+        
+    nombre = input("Ingrese Nombre y Apellido: ")
+    # Validación de Nombre vacío
+    if nombre.strip() == "":
+        print("❌ Error: El nombre no puede quedar vacío.")
+        return
+        
+    comision = input("Ingrese la comisión (ej: ISI): ")
+    
+    # Guardamos en el diccionario de usuarios
+    diccionario_usuarios[dni] = {
+        "nombre": nombre,
+        "comision": comision
+    }
+    print(f"✔️ ¡Usuario '{nombre}' registrado con éxito!")
+
+
+def registrar_prestamo():
+    global contador_prestamos # Para poder modificar el contador que está afuera
+    
+    print("\n[MÓDULO: REGISTRAR NUEVO PRÉSTAMO]")
+    dni = input("Ingrese el DNI del usuario que solicita el libro: ")
+    
+    # VALIDACIÓN: ¿El DNI existe en el diccionario de Vicky?
+    if dni not in diccionario_usuarios:
+        print("❌ Error: El DNI ingresado no corresponde a un usuario registrado.")
+        print("Por favor, registre al usuario primero (Opción 1).")
+        return
+        
+    id_libro = input("Ingrese el ID del libro (L01 / L02): ")
+    
+    # VALIDACIÓN: ¿El libro existe en el inventario?
+    if id_libro not in diccionario_libros:
+        print("❌ Error: El código de libro no existe.")
+        return
+        
+    # VALIDACIÓN: ¿Hay stock disponible?
+    if diccionario_libros[id_libro]["stock"] <= 0:
+        print(f"❌ Error: No queda stock disponible de '{diccionario_libros[id_libro]['titulo']}'.")
+        return
+    
+    # SI TODO ESTÁ BIEN, ENLAZAMOS LOS DICCIONARIOS
+    id_prestamo = f"P-{contador_prestamos}"
+    
+    # Guardamos solo el DNI y el ID del libro (Las relaciones)
+    diccionario_prestamos[id_prestamo] = {
+        "dni_usuario": dni,
+        "id_libro": id_libro
+    }
+    
+    # Actualizamos el stock del libro pedido
+    diccionario_libros[id_libro]["stock"] -= 1
+    diccionario_libros[id_libro]["pedidos"] += 1
+    contador_prestamos += 1
+    
+    # Buscamos el nombre real para el cartel de éxito
+    nombre_alumno = diccionario_usuarios[dni]["nombre"]
+    titulo_libro = diccionario_libros[id_libro]["titulo"]
+    
+    print(f"✔️ ¡Préstamo {id_prestamo} aprobado! '{nombre_alumno}' se llevó '{titulo_libro}'.")
+
+
+def mostrar_prestamos():
+    print("\n[MÓDULO: PRÉSTAMOS ACTIVOS EN EL SISTEMA]")
+    if len(diccionario_prestamos) == 0:
+        print("No hay préstamos registrados en este momento.")
+        return
+        
+    for cod_p, datos in diccionario_prestamos.items():
+        # Cruzamos los datos usando los enlaces
+        usuario_real = diccionario_usuarios[datos["dni_usuario"]]["nombre"]
+        libro_real = diccionario_libros[datos["id_libro"]]["titulo"]
+        print(f"📋 Código: {cod_p} | Alumno: {usuario_real} | Libro: {libro_real}")
+
+
+def mostrar_inventario():
+    print("\n[MÓDULO: INVENTARIO DE LIBROS]")
+    for cod_l, datos in diccionario_libros.items():
+        print(f"📖 ID: {cod_l} | Título: {datos['titulo']} | Stock: {datos['stock']} | Total Pedidos: {datos['pedidos']}")
+
+
+# --- FUNCIÓN PRINCIPAL MAIN (EL CEREBRO DEL PROGRAMA) ---
+def main():
     ejecutando = True
     
     while ejecutando:
         mostrar_menu()
-        opcion = input("Seleccione una opción (1-4): ")
+        opcion = input("Seleccione una opción (1-5): ")
         
         if opcion == "1":
-            print("\n[Procesando Préstamo...]")
-            if stock_libros > 0:
-                stock_libros = stock_libros - 1
-                total_prestamos = total_prestamos + 1
-                print("¡Préstamo realizado con éxito!")
-                print(f"Libros restantes en stock: {stock_libros}")
-            else:
-                print("Error: No quedan libros disponibles para prestar.")
-                
+            registrar_usuario()
         elif opcion == "2":
-            print("\n[Procesando Devolución...]")
-            
-            # --- VALIDACIÓN DE DÍAS DE DEMORA ---
-            dias_demora = int(input("Ingrese los días de demora (0 si se entregó a tiempo): "))
-            
-            if dias_demora < 0:
-                print("Error: Los días de demora no pueden ser negativos.")
-            elif dias_demora > 0:
-                # Calculamos la multa simple
-                multa = dias_demora * PRECIO_MULTA_DIARIA
-                dinero_recaudado = dinero_recaudado + multa  # Sumamos al acumulador
-                print(f"¡Atención! El libro tiene {dias_demora} días de demora.")
-                print(f"Monto de la multa a pagar: ${multa}")
-            else:
-                print("¡Perfecto! El libro fue devuelto a tiempo. Sin multa.")
-            
-            # En cualquier caso, el libro vuelve al stock
-            stock_libros = stock_libros + 1
-            print("Libro devuelto con éxito al stock.")
-            
+            registrar_prestamo()
         elif opcion == "3":
-            print("\n--- ESTADÍSTICAS ---")
-            print(f"Cantidad total de préstamos realizados: {total_prestamos}")
-            print(f"Libros disponibles actualmente: {stock_libros}")
-            print(f"Total de dinero recaudado por multas: ${dinero_recaudado}")
-            
+            mostrar_prestamos()
         elif opcion == "4":
-            print("\n¡Gracias por usar el sistema de biblioteca. Hasta luego!")
+            mostrar_inventario()
+        elif opcion == "5":
+            print("\n¡Gracias por usar el sistema! Saliendo del programa...")
             ejecutando = False
-            
         else:
-            print("\nOpción inválida. Por favor, elija un número del 1 al 4.")
+            print("\n❌ Opción inválida. Intente de nuevo.")
 
+
+# Ejecución del programa
 if __name__ == "__main__":
-    ejecutar_sistema()
+    main()
+    
