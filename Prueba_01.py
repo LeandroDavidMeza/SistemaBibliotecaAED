@@ -1,5 +1,6 @@
 def mostrar_menu():
-    print("\n--- SISTEMA DE BIBLIOTECA ---")
+    print("\--- SISTEMA DE BIBLIOTECA ---")
+    print("Seleccione el número según la acción a ejecutar")
     print("1. Registrar Préstamo")
     print("2. Registrar Devolución (Con cálculo de multa)")
     print("3. Ver Estadísticas y Caja")
