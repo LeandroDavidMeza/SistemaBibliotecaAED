@@ -4,10 +4,7 @@ CAMPOS_USUARIOS = ["IDUsuario", "DNI", "Nombre", "Apellido", "Email", "Telefono"
 CAMPOS_PRESTAMOS = ["IDPrestamo", "IDLibro", "IDUsuario", "FechaSalida", "FechaDevolucionPactada", "FechaDevolucionReal", "Estado"]
 
 def crear_libro(id_libro, titulo, autor, disponibilidad="Si"):
-    """
-    Retorna un diccionario con la estructura de un libro.
-    Por defecto, un libro nuevo ingresa como disponible.
-    """
+    """Retorna un diccionario con la estructura de un libro."""
     return {
         "IDLibro": id_libro,
         "Titulo": titulo,
@@ -16,9 +13,7 @@ def crear_libro(id_libro, titulo, autor, disponibilidad="Si"):
     }
 
 def crear_usuario(id_usuario, dni, nombre, apellido, email, telefono):
-    """
-    Retorna un diccionario con la estructura de un usuario.
-    """
+    """Retorna un diccionario con la estructura de un usuario."""
     return {
         "IDUsuario": id_usuario,
         "DNI": dni,
@@ -27,7 +22,9 @@ def crear_usuario(id_usuario, dni, nombre, apellido, email, telefono):
         "Email": email,
         "Telefono": telefono
     }
+
 def crear_prestamo(id_prestamo, id_libro, id_usuario, fecha_salida, fecha_pactada):
+    """Retorna un diccionario con la estructura de un prestamo."""
     return {
         "IDPrestamo": id_prestamo,
         "IDLibro": id_libro,
@@ -106,12 +103,33 @@ def registrar_devolucion_sistema(libros, prestamos):
             print(f"💰 Monto de la multa a pagar: ${monto_multa}")
         else:
             print("✔️ ¡Excelente! Devuelto a tiempo sin multas.")
+
+def listar_prestamos(prestamos):
+    """Muestra en pantalla la lista de préstamos registrados."""
+    print("\n--- 📋 LISTA DE PRÉSTAMOS ---")
+    if len(prestamos) == 0:
+        print("No hay préstamos registrados en el sistema.")
+        return
+    for p in prestamos:
+        print(f"Código: {p['IDPrestamo']} | Libro ID: {p['IDLibro']} | Usuario ID: {p['IDUsuario']} | Estado: {p['Estado']}")
+
+def mostrar_estadisticas_sistema(libros, usuarios, prestamos):
+    """Genera métricas del sistema utilizando contadores y acumuladores."""
+    print("\n--- 📊 ESTADÍSTICAS DEL SISTEMA ---")
+    print(f"🔹 Cantidad total de usuarios registrados: {len(usuarios)}")
+    print(f"🔹 Cantidad total de transacciones de préstamo: {len(prestamos)}")
+    
+    libros_disponibles = 0
+    for l in libros:
+        if l["Disponibilidad"] == "Si":
+            libros_disponibles += 1
             
-    def listar_prestamos(prestamos):
-        print("\n--- Lista de Préstamos ---")
-        if len(prestamos) == 0:
-            print("No hay préstamos registrados en el sistema.")
-            return
-        for p in prestamos:
-            print(f"Código: {p['IDPrestamo']} | Libro ID: {p['IDLibro']} | Usuario ID: {p['IDUsuario']} | Estado: {p['Estado']}")
-        
+    print(f"🔹 Libros disponibles actualmente en estantería: {libros_disponibles}")
+    
+    prestamos_activos = 0
+    for p in prestamos:
+        if p["Estado"] == "Activo":
+            prestamos_activos += 1
+            
+    print(f"🔹 Préstamos activos (en la calle): {prestamos_activos}")
+    
