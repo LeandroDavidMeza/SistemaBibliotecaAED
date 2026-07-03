@@ -1,60 +1,99 @@
 # Estructura homogénea requerida por la cátedra para el diccionario de libros
-CAMPOS_LIBROS = ["IDLibro", "ISBN", "Titulo", "Autor", "Cantidad"]
+CAMPOS_LIBROS = ["IDLibro", "ISBN", "Titulo", "Autor", "StockTotal", "StockDisponible"]
+
 
 def crear_libro(id_libro, isbn, titulo, autor, cantidad=1):
     """
     Retorna un diccionario estructurado para representar un libro.
-    Garantiza que todas las claves sean iguales en cada registro.
+    Al crearlo, el stock total y el disponible arrancan iguales.
     """
     return {
         "IDLibro": str(id_libro),
         "ISBN": isbn,
         "Titulo": titulo,
         "Autor": autor,
-        "Cantidad": str(cantidad)
+        "StockTotal": str(cantidad),
+        "StockDisponible": str(cantidad),
     }
+
+
+def buscar_libro(libros, criterio):
+    """
+    Recorre la lista de libros elemento a elemento buscando coincidencia.
+    Acepta como criterio el IDLibro o el ISBN (lo que resulte más cómodo).
+    Retorna el diccionario del libro si lo encuentra, o None si no existe.
+    """
+    for libro in libros:
+        if libro["IDLibro"] == criterio or libro["ISBN"] == criterio:
+            return libro
+    return None
+
 
 def agregar_libro(libros):
     """
-    Añade un libro al sistema. 
-    Recorre la lista elemento a elemento buscando coincidencias por ISBN.
-    Si el ISBN ya existe, aumenta la cantidad (Stock).
-    Si no existe, genera un ID incremental automático.
+    Añade un libro al sistema recorriendo la lista elemento a elemento.
+    Si el ISBN ya existe, NO crea un registro nuevo: aumenta en 1 el stock
+    (total y disponible) del libro que ya estaba cargado.
+    Si el ISBN es nuevo, genera un ID automático e incremental.
     """
     print("\n[📚 Alta de Libro]")
-    isbn = input("Ingrese el código ISBN: ").strip()
-    
-    # Validamos elemento a elemento recorriendo la lista según lo pedido
+    isbn = leer_texto("Ingrese el código ISBN: ")
+
+    # Buscamos si ya existe un libro con ese ISBN (elemento a elemento)
     libro_existente = None
-    for l in libros:
-        if l["ISBN"] == isbn:
-            libro_existente = l
-            break # Cortamos el ciclo si encontramos la coincidencia
-            
-    if libro_existente:
-        # Uso de acumulador: convertimos a entero, sumamos 1 y volvemos a texto para el .txt
-        nueva_cant = int(libro_existente["Cantidad"]) + 1
-        libro_existente["Cantidad"] = str(nueva_cant)
-        print(f"✔️ Libro existente detectado. Se acumuló stock. Cantidad actual: {nueva_cant}")
+    for libro in libros:
+        if libro["ISBN"] == isbn:
+            libro_existente = libro
+            break  # cortamos el ciclo apenas encontramos la coincidencia
+
+    if libro_existente is not None:
+        # Acumulador: sumamos un ejemplar al mismo registro
+        nuevo_total = int(libro_existente["StockTotal"]) + 1
+        nuevo_disp = int(libro_existente["StockDisponible"]) + 1
+        libro_existente["StockTotal"] = str(nuevo_total)
+        libro_existente["StockDisponible"] = str(nuevo_disp)
+        print(f"✔️ El libro ya existía. Se sumó un ejemplar.")
+        print(f"   Stock total: {nuevo_total} | Disponibles: {nuevo_disp}")
     else:
-        # ID automático basado en el tamaño actual de la lista (incremental)
-        nuevo_id = len(libros) + 1
-        titulo = input("Título del libro: ").strip()
-        autor = input("Autor del libro: ").strip()
-        
+        # ID automático e incremental (no lo escribe el usuario)
+        nuevo_id = generar_nuevo_id(libros, "IDLibro")
+        titulo = leer_texto("Título del libro: ")
+        autor = leer_texto("Autor del libro: ")
+
         nuevo_l = crear_libro(nuevo_id, isbn, titulo, autor)
         libros.append(nuevo_l)
-        print(f"✔️ Nuevo libro registrado con éxito. ID automático asignado: {nuevo_id}")
+        print(f"✔️ Nuevo libro registrado. ID automático asignado: {nuevo_id}")
+
 
 def listar_libros(libros):
-    """
-    Muestra en pantalla el catálogo completo recorriendo la lista.
-    """
+    """Muestra el catálogo completo recorriendo la lista elemento a elemento."""
     print("\n--- 📋 CATÁLOGO DE LIBROS ---")
     if not libros:
         print("No hay libros registrados en el catálogo.")
         return
-        
-    for l in libros:
-        print(f"ID: {l['IDLibro']} | ISBN: {l['ISBN']} | Título: {l['Titulo']} | Autor: {l['Autor']} | Stock: {l['Cantidad']}")
-        
+
+    for libro in libros:
+        print(
+            f"ID: {libro['IDLibro']} | ISBN: {libro['ISBN']} | "
+            f"Título: {libro['Titulo']} | Autor: {libro['Autor']} | "
+            f"Stock total: {libro['StockTotal']} | Disponibles: {libro['StockDisponible']}"
+        )
+
+
+def top_libros_por_stock(libros, cantidad=3):
+    """
+    ESTADÍSTICA (a): recorre la lista de libros consultando la cantidad
+    (StockTotal) de cada uno y devuelve los 'cantidad' libros con mayor stock.
+    """
+    print(f"\n--- 🏆 TOP {cantidad} LIBROS CON MAYOR STOCK ---")
+    if not libros:
+        print("No hay libros cargados para analizar.")
+        return
+
+    # Ordenamos una copia de la lista de mayor a menor según StockTotal
+    ordenados = sorted(libros, key=lambda libro: int(libro["StockTotal"]), reverse=True)
+
+    posicion = 1
+    for libro in ordenados[:cantidad]:
+        print(f"{posicion}º) {libro['Titulo']} → {libro['StockTotal']} ejemplares")
+        posicion += 1
