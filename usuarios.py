@@ -52,7 +52,9 @@ def listar_usuarios(usuarios):
         return
         
     for u in usuarios:
-        print(f"ID: {u['IDUsuario']} | DNI: {u['DNI']} | Nombre: {u['Nombre']} {u['Apellido']} | Email: {u['Email']} | Teléfono: {u['Telefono']}")
+        print(f"ID: {u['IDUsuario']} | DNI: {u['DNI']} | "
+        f"Nombre: {u['Nombre']} {u['Apellido']} | "
+        f"Email: {u['Email']} | Teléfono: {u['Telefono']}")
     
 def buscar_usuario(usuarios, criterio):
     """
