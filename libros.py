@@ -1,3 +1,4 @@
+from utilidades import leer_texto, generar_nuevo_id
 # Estructura homogénea requerida por la cátedra para el diccionario de libros
 CAMPOS_LIBROS = ["IDLibro", "ISBN", "Titulo", "Autor", "StockTotal", "StockDisponible"]
 
