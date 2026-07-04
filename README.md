@@ -1,15 +1,16 @@
-# Trabajo Final Integrador: Sistema de Gestión de Biblioteca
+# Trabajo Final Integrador del Lab. de Python: Sistema de Gestión de Biblioteca
 **Asignatura:** Algoritmos y Estructuras de Datos - ISI  
 **Ciclo:** 2026
 
-## Integrantes y Comisión
-* **Comisión** ISI B (K1.2)
+## Comisión e Integrantes
+* **Comisión ISI B (K1.2)**
 - Alvarez, Daniel Agustin
 - Brailovsky Chas, Ramiro Iván
 - Kohler, Sofía Pilar
 - Meza, Leandro David
 - Sanz, Victoria
 
+-----
 
 ## Descripción
 Sistema de gestión de biblioteca desarrollado en Python, para ejecutarse
@@ -22,20 +23,18 @@ ocupa de un dominio específico (libros, usuarios, préstamos, persistencia y
 utilidades). La información se almacena en archivos de texto (.txt), de modo
 que los datos se conservan entre una ejecución y la siguiente.
 
------
-
 ## Instrucciones de Ejecución
 
 1. **Clonar o descargar** el repositorio en la máquina local:
 
    ```bash
-   git clone <URL-del-repositorio>
+   git clone https://github.com/LeandroDavidMeza/SistemaBibliotecaAED
    ```
 
 2. **Ingresar a la carpeta** del proyecto:
 
    ```bash
-   cd biblioteca
+   cd SistemaBibliotecaAED
    ```
 
 3. **Ejecutar el programa** desde la terminal:
@@ -57,7 +56,3 @@ que los datos se conservan entre una ejecución y la siguiente.
 > el programa en funcionamiento real, se deben **eliminar estos casos de
 > ejemplo** —vaciando o borrando los archivos de la carpeta `datos/`— para
 > comenzar con una base de datos limpia.
-
----
-
------
