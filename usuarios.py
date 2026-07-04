@@ -53,5 +53,15 @@ def listar_usuarios(usuarios):
         
     for u in usuarios:
         print(f"ID: {u['IDUsuario']} | DNI: {u['DNI']} | Nombre: {u['Nombre']} {u['Apellido']} | Email: {u['Email']} | Teléfono: {u['Telefono']}")
+    
+def buscar_usuario(usuarios, criterio):
+    """
+    Busca un usuario por IDUsuario o por DNI.
+    Retorna el diccionario del usuario si lo encuentra, o None si no existe.
+    """
+    for u in usuarios:
+        if u["IDUsuario"] == criterio or u["DNI"] == criterio:
+            return u
+    return None
         
         
