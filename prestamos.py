@@ -1,11 +1,20 @@
-# Estructura homogénea requerida por la cátedra para el diccionario de préstamos
-CAMPOS_PRESTAMOS = ["IDPrestamo", "IDLibro", "IDUsuario", "FechaSalida", "FechaDevolucionPactada", "FechaDevolucionReal", "Estado"]
+# ---------------------------------------------------------------------------
+# Módulo de PRÉSTAMOS
+# Cada préstamo es un diccionario y todos comparten las mismas claves.
+# Este módulo "enlaza" usuarios con libros a través de sus ID.
+# ---------------------------------------------------------------------------
+from utilidades import leer_texto, leer_entero, leer_fecha, generar_nuevo_id
+from usuarios import buscar_usuario
+from libros import buscar_libro
+
+CAMPOS_PRESTAMOS = [
+    "IDPrestamo", "IDLibro", "IDUsuario",
+    "FechaSalida", "FechaDevolucionPactada", "FechaDevolucionReal", "Estado"
+]
+
 
 def crear_prestamo(id_prestamo, id_libro, id_usuario, fecha_salida, fecha_pactada):
-    """
-    Retorna un diccionario estructurado para un préstamo activo.
-    Usa el año completo en las fechas y mantiene consistencia en las claves.
-    """
+    """Retorna un diccionario estructurado para un préstamo activo."""
     return {
         "IDPrestamo": str(id_prestamo),
         "IDLibro": str(id_libro),
@@ -13,136 +22,175 @@ def crear_prestamo(id_prestamo, id_libro, id_usuario, fecha_salida, fecha_pactad
         "FechaSalida": fecha_salida,
         "FechaDevolucionPactada": fecha_pactada,
         "FechaDevolucionReal": "N/A",
-        "Estado": "Activo"
+        "Estado": "Activo",
     }
+
 
 def registrar_prestamo_sistema(usuarios, libros, prestamos):
     """
-    Registra un préstamo. Valida existencia de socio, existencia de libro y stock disponible.
-    Resta 1 al stock del libro si el préstamo es exitoso.
+    Registra un préstamo. El socio se puede identificar por ID o por DNI,
+    y el libro por ID o por ISBN. Valida que ambos existan y que haya
+    stock disponible. Al aprobarse, resta 1 al stock DISPONIBLE del libro.
     """
     print("\n[🚀 Registrar Préstamo]")
-    id_usuario = input("ID del Usuario (Socio): ").strip()
-    
-    # 1. Validación elemento a elemento: buscamos si el socio existe
-    usuario_encontrado = False
-    for u in usuarios:
-        if u["IDUsuario"] == id_usuario:
-            usuario_encontrado = True
-            break
-            
-    if not usuario_encontrado:
-        print("❌ Error: El ID de usuario ingresado no existe en el sistema.")
+
+    # 1. Identificar al socio (por ID o DNI) recorriendo la lista
+    criterio_usuario = leer_texto("Ingrese ID o DNI del socio: ")
+    usuario = buscar_usuario(usuarios, criterio_usuario)
+    if usuario is None:
+        print("❌ Error: no existe ningún socio con ese ID/DNI.")
         return
-        
-    id_libro = input("ID del Libro a prestar: ").strip()
-    
-    # 2. Validación elemento a elemento: buscamos el libro en el catálogo
-    libro_encontrado = None
-    for l in libros:
-        if l["IDLibro"] == id_libro:
-            libro_encontrado = l
-            break
-            
-    if not libro_encontrado:
-        print("❌ Error: El ID del libro ingresado no existe en el catálogo.")
+
+    # 2. Identificar el libro (por ID o ISBN) recorriendo la lista
+    criterio_libro = leer_texto("Ingrese ID o ISBN del libro: ")
+    libro = buscar_libro(libros, criterio_libro)
+    if libro is None:
+        print("❌ Error: no existe ningún libro con ese ID/ISBN.")
         return
-        
-    # 3. Validación de Disponibilidad basada en Cantidad (Stock)
-    stock_actual = int(libro_encontrado["Cantidad"])
-    if stock_actual <= 0:
-        print("❌ Error: No quedan ejemplares disponibles de este libro en la estantería.")
+
+    # 3. Validar stock disponible
+    if int(libro["StockDisponible"]) <= 0:
+        print(f"❌ Error: no quedan ejemplares disponibles de '{libro['Titulo']}'.")
         return
-        
-    # Asignación de ID automático incremental
-    nuevo_id = len(prestamos) + 1
-    
-    # Fechas completas (Día, Mes, Año) sugeridas por el grupo
-    f_salida = input("Fecha de salida (DD/MM/AAAA): ").strip()
-    f_pactada = input("Fecha pactada de devolución (DD/MM/AAAA): ").strip()
-    
-    nuevo_p = crear_prestamo(nuevo_id, id_libro, id_usuario, f_salida, f_pactada)
+
+    # 4. Fechas completas con día, mes y año (validadas con try/except)
+    f_salida = leer_fecha("Fecha de salida (DD/MM/AAAA): ")
+    f_pactada = leer_fecha("Fecha pactada de devolución (DD/MM/AAAA): ")
+
+    # 5. ID automático e incremental para el préstamo
+    nuevo_id = generar_nuevo_id(prestamos, "IDPrestamo")
+    nuevo_p = crear_prestamo(nuevo_id, libro["IDLibro"], usuario["IDUsuario"], f_salida, f_pactada)
     prestamos.append(nuevo_p)
-    
-    # Modificación del stock del libro (Resta 1 ejemplar)
-    libro_encontrado["Cantidad"] = str(stock_actual - 1)
-    print(f"✔️ ¡Préstamo aprobado con éxito! ID de transacción asignado: {nuevo_id}")
+
+    # 6. Restamos 1 al stock DISPONIBLE (el total no cambia)
+    libro["StockDisponible"] = str(int(libro["StockDisponible"]) - 1)
+
+    print(f"✔️ Préstamo aprobado. ID de transacción: {nuevo_id}")
+    print(f"   Socio: {usuario['Nombre']} {usuario['Apellido']} | Libro: {libro['Titulo']}")
+
 
 def registrar_devolucion_sistema(libros, prestamos):
     """
-    Registra la devolución de un libro. Devuelve el ejemplar al stock
-    y calcula multas si corresponde.
+    Registra la devolución de un préstamo activo, suma 1 al stock DISPONIBLE
+    del libro y calcula la multa si hubo demora.
     """
     print("\n[🔙 Registrar Devolución]")
-    id_p = input("Ingrese el ID del Préstamo a cerrar (ej: 1): ").strip()
-    
+    id_p = leer_texto("Ingrese el ID del préstamo a cerrar (ej: 1): ")
+
     # Buscamos el préstamo activo elemento a elemento
-    prestamo_encontrado = None
+    prestamo = None
     for p in prestamos:
         if p["IDPrestamo"] == id_p and p["Estado"] == "Activo":
-            prestamo_encontrado = p
+            prestamo = p
             break
-            
-    if not prestamo_encontrado:
-        print("❌ Error: No se encontró ningún préstamo activo registrado con ese ID.")
+
+    if prestamo is None:
+        print("❌ Error: no se encontró un préstamo activo con ese ID.")
         return
-        
-    f_real = input("Fecha real de devolución (DD/MM/AAAA): ").strip()
-    dias_demora = int(input("Días de demora (0 si entregó a tiempo): "))
-    
+
+    f_real = leer_fecha("Fecha real de devolución (DD/MM/AAAA): ")
+    dias_demora = leer_entero("Días de demora (0 si entregó a tiempo): ", minimo=0)
+
     # Actualizamos el estado del préstamo
-    prestamo_encontrado["FechaDevolucionReal"] = f_real
-    prestamo_encontrado["Estado"] = "Devuelto"
-    
-    # Modificación del stock del libro (Suma 1 ejemplar devuelto)
-    for l in libros:
-        if l["IDLibro"] == prestamo_encontrado["IDLibro"]:
-            l["Cantidad"] = str(int(l["Cantidad"]) + 1)
+    prestamo["FechaDevolucionReal"] = f_real
+    prestamo["Estado"] = "Devuelto"
+
+    # Devolvemos el ejemplar al stock disponible (recorriendo por IDLibro)
+    for libro in libros:
+        if libro["IDLibro"] == prestamo["IDLibro"]:
+            libro["StockDisponible"] = str(int(libro["StockDisponible"]) + 1)
             break
-            
+
     if dias_demora > 0:
-        monto_multa = dias_demora * 500  # Multiplicador simple de multa
-        print(f"⚠️ ¡Atención! Registro con {dias_demora} días de demora.")
-        print(f"💰 Monto de la multa acumulada a pagar: ${monto_multa}")
+        monto_multa = dias_demora * 500
+        print(f"⚠️ Registro con {dias_demora} día(s) de demora.")
+        print(f"💰 Monto de la multa a pagar: ${monto_multa}")
     else:
-        print("✔️ ¡Excelente! El socio devolvió el libro a tiempo y sin multas.")
+        print("✔️ Devuelto a tiempo y sin multas.")
+
 
 def listar_prestamos(prestamos):
-    """
-    Recorre el historial completo de transacciones de préstamo.
-    """
+    """Recorre y muestra el historial completo de préstamos."""
     print("\n--- 📋 HISTORIAL GENERAL DE PRÉSTAMOS ---")
     if not prestamos:
-        print("No se registran transacciones de préstamo en el sistema.")
+        print("No se registran préstamos en el sistema.")
         return
-        
+
     for p in prestamos:
-        print(f"ID Transacción: {p['IDPrestamo']} | Libro ID: {p['IDLibro']} | Socio ID: {p['IDUsuario']} | Estado: {p['Estado']}")
+        print(
+            f"ID: {p['IDPrestamo']} | Libro ID: {p['IDLibro']} | "
+            f"Socio ID: {p['IDUsuario']} | Salida: {p['FechaSalida']} | "
+            f"Estado: {p['Estado']}"
+        )
+
 
 def mostrar_estadisticas_sistema(libros, usuarios, prestamos):
-    """
-    Módulo de analítica solicitado por la cátedra. 
-    Cruza los datos de las tres listas usando contadores puros.
-    """
-    print("\n--- 📊 ESTADÍSTICAS GENERALES DEL SISTEMA ---")
-    
-    # Contadores directos mediante tamaño de listas
-    print(f"🔹 Cantidad total de socios registrados: {len(usuarios)}")
-    print(f"🔹 Volumen histórico de préstamos realizados: {len(prestamos)}")
-    
-    # Contador estructurado mediante ciclo repetitivo for
+    """Métricas generales del sistema usando contadores y acumuladores."""
+    print("\n--- 📊 ESTADÍSTICAS GENERALES ---")
+    print(f"🔹 Socios registrados: {len(usuarios)}")
+    print(f"🔹 Préstamos históricos: {len(prestamos)}")
+
+    # Contador con ciclo for: préstamos activos
     prestamos_activos = 0
     for p in prestamos:
         if p["Estado"] == "Activo":
             prestamos_activos += 1
-            
-    print(f"🔹 Préstamos activos circulando en la calle: {prestamos_activos}")
-    
-    # Acumulador del stock total de libros físicos disponibles en la biblioteca
-    total_ejemplares_disponibles = 0
-    for l in libros:
-        total_ejemplares_disponibles += int(l["Cantidad"])
-        
-    print(f"🔹 Total de libros físicos disponibles en estanterías: {total_ejemplares_disponibles}")
-    
-    
+    print(f"🔹 Préstamos activos (en la calle): {prestamos_activos}")
+
+    # Acumuladores de stock total y disponible
+    total_ejemplares = 0
+    total_disponibles = 0
+    for libro in libros:
+        total_ejemplares += int(libro["StockTotal"])
+        total_disponibles += int(libro["StockDisponible"])
+    print(f"🔹 Stock total de ejemplares (comprados): {total_ejemplares}")
+    print(f"🔹 Stock disponible en estantería ahora: {total_disponibles}")
+
+
+def libros_mas_y_menos_solicitados(prestamos, libros, cantidad=3):
+    """
+    ESTADÍSTICA (b): recorre la lista de préstamos elemento a elemento y,
+    por cada préstamo, consulta el libro prestado y lo suma a un contador.
+    Al final muestra los 'cantidad' libros más y menos solicitados.
+    """
+    print(f"\n--- 📈 LIBROS MÁS Y MENOS SOLICITADOS ---")
+    if not prestamos:
+        print("Todavía no hay préstamos para analizar.")
+        return
+
+    # Contador (diccionario) que acumula préstamos por IDLibro
+    conteo = {}
+    for p in prestamos:
+        id_libro = p["IDLibro"]
+        if id_libro in conteo:
+            conteo[id_libro] += 1
+        else:
+            conteo[id_libro] = 1
+
+    # Pasamos el contador a una lista de pares (IDLibro, cantidad_de_prestamos)
+    pares = []
+    for id_libro in conteo:
+        pares.append((id_libro, conteo[id_libro]))
+
+    # Ordenamos de mayor a menor según la cantidad de préstamos
+    pares_ordenados = sorted(pares, key=lambda par: par[1], reverse=True)
+
+    def titulo_de(id_libro):
+        """Busca el título del libro recorriendo la lista por IDLibro."""
+        for libro in libros:
+            if libro["IDLibro"] == id_libro:
+                return libro["Titulo"]
+        return f"(ID {id_libro})"
+
+    print(f"🔝 Más solicitados:")
+    posicion = 1
+    for id_libro, veces in pares_ordenados[:cantidad]:
+        print(f"   {posicion}º) {titulo_de(id_libro)} → {veces} préstamo(s)")
+        posicion += 1
+
+    print(f"🔻 Menos solicitados:")
+    posicion = 1
+    # Los últimos de la lista ordenada, mostrados de menor a mayor
+    for id_libro, veces in reversed(pares_ordenados[-cantidad:]):
+        print(f"   {posicion}º) {titulo_de(id_libro)} → {veces} préstamo(s)")
+        posicion += 1
