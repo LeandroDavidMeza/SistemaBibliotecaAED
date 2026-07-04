@@ -1,3 +1,5 @@
+from utilidades import leer_texto
+
 # Estructura homogénea requerida por la cátedra para el diccionario de usuarios
 CAMPOS_USUARIOS = ["IDUsuario", "DNI", "Nombre", "Apellido", "Email", "Telefono"]
 
@@ -22,7 +24,7 @@ def agregar_usuario(usuarios):
     Asigna un ID incremental de forma automática.
     """
     print("\n[👤 Alta de Usuario/Socio]")
-    dni = input("DNI del usuario: ").strip()
+    dni = leer_texto("DNI del usuario: ")
     
     # Validación elemento a elemento: buscamos si el DNI ya existe
     for u in usuarios:
@@ -33,10 +35,10 @@ def agregar_usuario(usuarios):
     # ID automático incremental basado en la cantidad actual de usuarios registrados
     nuevo_id = len(usuarios) + 1
     
-    nombre = input("Nombre: ").strip()
-    apellido = input("Apellido: ").strip()
-    email = input("Email: ").strip()
-    telefono = input("Teléfono: ").strip()
+    nombre = leer_texto("Nombre: ")
+    apellido = leer_texto("Apellido: ")
+    email = leer_texto("Email: ")
+    telefono = leer_texto("Teléfono: ")
     
     nuevo_u = crear_usuario(nuevo_id, dni, nombre, apellido, email, telefono)
     usuarios.append(nuevo_u)
