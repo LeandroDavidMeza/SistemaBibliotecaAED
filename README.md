@@ -23,6 +23,9 @@ ocupa de un dominio específico (libros, usuarios, préstamos, persistencia y
 utilidades). La información se almacena en archivos de texto (.txt), de modo
 que los datos se conservan entre una ejecución y la siguiente.
 
+## Utilización de IA
+Para la realización de este trabajo se utilizaron dos Inteligencias Artificiales diferentes, Gemini y Claude, las cuales fueron útiles para generar ideas nuevas, diseñar estructuras y depurar errores. Cabe aclarar que, en todos los casos, las decisiones finales sobre qué aplicar y qué rechazar fueron tomadas y comprendidas por el equipo completo. Por ejemplo, descartamos una sugerencia de validar las opciones del menú con una función que mezclaba enteros y strings, por considerarla incoherente con el resto del sistema.
+
 ## Instrucciones de Ejecución
 
 1. **Clonar o descargar** el repositorio en la máquina local:
