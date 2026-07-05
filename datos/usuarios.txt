@@ -1,5 +1,5 @@
-1,30111222,Ana,Gómez,ana.gomez@mail.com,3814550011
-2,28999333,Lucas,Fernández,lucas.f@mail.com,3814550022
-3,35444555,Sofía,Pérez,sofia.perez@mail.com,3814550033
-4,40222111,Martín,Díaz,martin.diaz@mail.com,3814550044
-5,33666777,Julieta,Ramírez,julieta.r@mail.com,3814550055
+1;30111222;Ana;Gómez;ana.gomez@mail.com;3814550011
+2;28999333;Lucas;Fernández;lucas.f@mail.com;3814550022
+3;35444555;Sofía;Pérez;sofia.perez@mail.com;3814550033
+4;40222111;Martín;Díaz;martin.diaz@mail.com;3814550044
+5;33666777;Julieta;Ramírez;julieta.r@mail.com;3814550055

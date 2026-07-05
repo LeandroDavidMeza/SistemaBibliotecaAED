@@ -1,6 +1,6 @@
-1,978-0307474728,El Aleph,Jorge Luis Borges,4,3
-2,978-8420412146,Cien Años de Soledad,Gabriel García Márquez,3,2
-3,978-8437604947,Don Quijote de la Mancha,Miguel de Cervantes,2,1
-4,978-0141439518,Orgullo y Prejuicio,Jane Austen,3,3
-5,978-8499890944,Rayuela,Julio Cortázar,2,2
-6,978-8497592208,Ficciones,Jorge Luis Borges,5,4
+1;978-0307474728;El Aleph;Jorge Luis Borges;4;3
+2;978-8420412146;Cien Años de Soledad;Gabriel García Márquez;3;2
+3;978-8437604947;Don Quijote de la Mancha;Miguel de Cervantes;2;1
+4;978-0141439518;Orgullo y Prejuicio;Jane Austen;3;3
+5;978-8499890944;Rayuela;Julio Cortázar;2;2
+6;978-8497592208;Ficciones;Jorge Luis Borges;5;4
