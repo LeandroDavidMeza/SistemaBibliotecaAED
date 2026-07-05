@@ -155,9 +155,8 @@ def mostrar_estadisticas_sistema(libros, usuarios, prestamos):
 
 def libros_mas_y_menos_solicitados(prestamos, libros, cantidad=3):
     """
-    ESTADÍSTICA (b): recorre la lista de préstamos elemento a elemento y,
-    por cada préstamo, consulta el libro prestado y lo suma a un contador.
-    Al final muestra los 'cantidad' libros más y menos solicitados.
+    Muestra los los tres libros más solicitados, y los tres menos solicitados
+    (incluyendo los que nunca han sido prestados).
     """
     print(f"\n--- 📈 LIBROS MÁS Y MENOS SOLICITADOS ---")
     if not prestamos:
@@ -166,12 +165,10 @@ def libros_mas_y_menos_solicitados(prestamos, libros, cantidad=3):
 
     # Contador (diccionario) que acumula préstamos por IDLibro
     conteo = {}
-    for p in prestamos:
-        id_libro = p["IDLibro"]
-        if id_libro in conteo:
-            conteo[id_libro] += 1
-        else:
-            conteo[id_libro] = 1
+    for libro in libros:                 # Arranca todo el catálogo en 0
+        conteo[libro["IDLibro"]] = 0
+    for p in prestamos:                  # Después suma los préstamos reales
+        conteo[p["IDLibro"]] = conteo.get(p["IDLibro"], 0) + 1
 
     # Pasamos el contador a una lista de pares (IDLibro, cantidad_de_prestamos)
     pares = []
