@@ -26,11 +26,10 @@ def agregar_usuario(usuarios):
     print("\n[👤 Alta de Usuario/Socio]")
     dni = leer_texto("DNI del usuario: ")
     
-    # Validación elemento a elemento: buscamos si el DNI ya existe
-    for u in usuarios:
-        if u["DNI"] == dni:
-            print("❌ Error: Ya existe un usuario registrado con ese número de DNI.")
-            return # Cancelamos el alta si ya está registrado
+    #Buscamos si ya existe alguien con ese DNI, si es así, cancelamos
+    if buscar_usuario(usuarios, dni) is not None:
+        print("❌ Error: Ya existe un usuario registrado con ese número de DNI.")
+        return
             
     # ID automático incremental basado en la cantidad actual de usuarios registrados
     nuevo_id = generar_nuevo_id(usuarios, "IDUsuario")
