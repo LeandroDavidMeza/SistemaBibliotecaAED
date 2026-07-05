@@ -1,5 +1,7 @@
 import os
 
+SEPARADOR = ";"
+
 def asegurar_directorio(ruta):
     """Crea la carpeta si no existe."""
     if not os.path.exists(ruta):
@@ -10,28 +12,31 @@ def cargar_datos(archivo, campos):
     lista_datos = []
     if not os.path.exists(archivo):
         return lista_datos
-        
-    with open(archivo, 'r', encoding='utf-8') as f:
-        for linea in f:
-            linea = linea.strip()
-            if linea:
-                valores = linea.split(',')
-                # Si la línea tiene la cantidad de datos correcta, armamos el diccionario
-                if len(valores) == len(campos):
-                    dicc = {}
-                    for i in range(len(campos)):
-                        dicc[campos[i]] = valores[i]
-                    lista_datos.append(dicc)
+    try:
+        with open(archivo, 'r', encoding='utf-8') as f:
+            for linea in f:
+                linea = linea.strip()
+                if linea:
+                    valores = linea.split(SEPARADOR)
+                    if len(valores) == len(campos):
+                        dicc = {}
+                        for i in range(len(campos)):
+                            dicc[campos[i]] = valores[i]
+                        lista_datos.append(dicc)
+                    else:
+                        print(f"⚠️ Línea ignorada por formato incorrecto en {archivo}.")
+    except IOError as e:
+        print(f"❌ Error al leer {archivo}: {e}")
     return lista_datos
 
 def guardar_datos(archivo, lista_datos, campos):
-    """Saca los datos de la lista de diccionarios y los escribe en el archivo .txt."""
-    with open(archivo, 'w', encoding='utf-8') as f:
-        for registro in lista_datos:
-            # Armamos una lista con los valores en el orden estricto de los campos
-            valores = []
-            for campo in campos:
-                valores.append(str(registro[campo]))
-            # Los juntamos con comas y los escribimos en un renglón
-            f.write(",".join(valores) + "\n")
-            
+    """Escribe la lista de diccionarios en el archivo .txt separando por ';'."""
+    try:
+        with open(archivo, 'w', encoding='utf-8') as f:
+            for registro in lista_datos:
+                valores = []
+                for campo in campos:
+                    valores.append(str(registro[campo]))
+                f.write(SEPARADOR.join(valores) + "\n")
+    except IOError as e:
+        print(f"❌ Error al guardar {archivo}: {e}")

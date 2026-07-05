@@ -8,14 +8,15 @@ from datetime import datetime
 
 def leer_texto(mensaje):
     """
-    Pide un texto por teclado y no lo acepta vacío.
-    Repite la pregunta hasta que el usuario escriba algo válido.
+    Pide un texto por teclado. Elimina espacios sobrantes y cualquier ';'
+    (el ';' es el separador de los .txt y rompería el archivo).
+    No acepta vacío: si tras la limpieza no queda nada, vuelve a pedir.
     """
     while True:
-        valor = input(mensaje).strip()
+        valor = input(mensaje).replace(";", "").strip()
         if valor != "":
             return valor
-        print("❌ El dato no puede quedar vacío. Intente nuevamente.")
+        print("❌ El dato no puede quedar vacío ni contener solo ';'. Intente nuevamente.")
 
 
 def leer_entero(mensaje, minimo=None, maximo=None):
