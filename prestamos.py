@@ -129,6 +129,7 @@ def listar_prestamos(prestamos):
         print(
             f"ID: {p['IDPrestamo']} | Libro ID: {p['IDLibro']} | "
             f"Socio ID: {p['IDUsuario']} | Salida: {p['FechaSalida']} | "
+            f"Pactada: {p['FechaDevolucionPactada']} | Devolución: {p['FechaDevolucionReal']} | "
             f"Estado: {p['Estado']} | Multa: ${p['Multa']}"
         )
 
