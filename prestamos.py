@@ -9,7 +9,7 @@ from libros import buscar_libro
 
 CAMPOS_PRESTAMOS = [
     "IDPrestamo", "IDLibro", "IDUsuario",
-    "FechaSalida", "FechaDevolucionPactada", "FechaDevolucionReal", "Estado"
+    "FechaSalida", "FechaDevolucionPactada", "FechaDevolucionReal", "Estado", "Multa"
 ]
 
 
@@ -23,6 +23,7 @@ def crear_prestamo(id_prestamo, id_libro, id_usuario, fecha_salida, fecha_pactad
         "FechaDevolucionPactada": fecha_pactada,
         "FechaDevolucionReal": "N/A",
         "Estado": "Activo",
+        "Multa": "0",
     }
 
 
@@ -109,9 +110,11 @@ def registrar_devolucion_sistema(libros, prestamos):
     if dias_demora > 0:
         costo_dia = leer_entero(f"Se registran {dias_demora} día(s) de atraso. Costo por día: $", minimo=0)
         monto_multa = dias_demora * costo_dia
+        prestamo["Multa"] = str(monto_multa)          # <-- se guarda
         print(f"⚠️ Devolución con {dias_demora} día(s) de atraso.")
-        print(f"💰 Multa: {dias_demora} x ${costo_dia} = ${monto_multa}")
+        print(f"💰 Multa: {dias_demora} × ${costo_dia} = ${monto_multa}")
     else:
+        prestamo["Multa"] = "0"                         # <-- devuelto a tiempo
         print("✔️ Devuelto a tiempo y sin multas.")
 
 
@@ -126,7 +129,7 @@ def listar_prestamos(prestamos):
         print(
             f"ID: {p['IDPrestamo']} | Libro ID: {p['IDLibro']} | "
             f"Socio ID: {p['IDUsuario']} | Salida: {p['FechaSalida']} | "
-            f"Estado: {p['Estado']}"
+            f"Estado: {p['Estado']} | Multa: ${p['Multa']}"
         )
 
 
