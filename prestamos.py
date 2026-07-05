@@ -3,7 +3,7 @@
 # Cada préstamo es un diccionario y todos comparten las mismas claves.
 # Este módulo "enlaza" usuarios con libros a través de sus ID.
 # ---------------------------------------------------------------------------
-from utilidades import leer_texto, leer_entero, leer_fecha, generar_nuevo_id, dias_entre, leer_decimal
+from utilidades import leer_texto, leer_fecha, generar_nuevo_id, dias_entre, leer_decimal
 from usuarios import buscar_usuario
 from libros import buscar_libro
 
@@ -110,9 +110,9 @@ def registrar_devolucion_sistema(libros, prestamos):
     if dias_demora > 0:
         costo_dia = leer_decimal(f"Se registran {dias_demora} día(s) de atraso. Costo por día: $", minimo=0)
         monto_multa = dias_demora * costo_dia
-        prestamo["Multa"] = str(monto_multa)          # <-- se guarda
+        prestamo["Multa"] = f"{monto_multa:.2f}"          # <-- se guarda
         print(f"⚠️ Devolución con {dias_demora} día(s) de atraso.")
-        print(f"💰 Multa: {dias_demora} × ${costo_dia} = ${monto_multa}")
+        print(f"💰 Multa: {dias_demora} × ${costo_dia:.2f} = ${monto_multa:.2f}")
     else:
         prestamo["Multa"] = "0"                         # <-- devuelto a tiempo
         print("✔️ Devuelto a tiempo y sin multas.")
@@ -132,72 +132,3 @@ def listar_prestamos(prestamos):
             f"Pactada: {p['FechaDevolucionPactada']} | Devolución: {p['FechaDevolucionReal']} | "
             f"Estado: {p['Estado']} | Multa: ${p['Multa']}"
         )
-
-
-def mostrar_estadisticas_sistema(libros, usuarios, prestamos):
-    """Métricas generales del sistema usando contadores y acumuladores."""
-    print("\n--- 📊 ESTADÍSTICAS GENERALES ---")
-    print(f"🔹 Socios registrados: {len(usuarios)}")
-    print(f"🔹 Préstamos históricos: {len(prestamos)}")
-
-    # Contador con ciclo for: préstamos activos
-    prestamos_activos = 0
-    for p in prestamos:
-        if p["Estado"] == "Activo":
-            prestamos_activos += 1
-    print(f"🔹 Préstamos activos (en la calle): {prestamos_activos}")
-
-    # Acumuladores de stock total y disponible
-    total_ejemplares = 0
-    total_disponibles = 0
-    for libro in libros:
-        total_ejemplares += int(libro["StockTotal"])
-        total_disponibles += int(libro["StockDisponible"])
-    print(f"🔹 Stock total de ejemplares (comprados): {total_ejemplares}")
-    print(f"🔹 Stock disponible en estantería ahora: {total_disponibles}")
-
-
-def libros_mas_y_menos_solicitados(prestamos, libros, cantidad=3):
-    """
-    Muestra los los tres libros más solicitados, y los tres menos solicitados
-    (incluyendo los que nunca han sido prestados).
-    """
-    print(f"\n--- 📈 LIBROS MÁS Y MENOS SOLICITADOS ---")
-    if not prestamos:
-        print("Todavía no hay préstamos para analizar.")
-        return
-
-    # Contador (diccionario) que acumula préstamos por IDLibro
-    conteo = {}
-    for libro in libros:                 # Arranca todo el catálogo en 0
-        conteo[libro["IDLibro"]] = 0
-    for p in prestamos:                  # Después suma los préstamos reales
-        conteo[p["IDLibro"]] = conteo.get(p["IDLibro"], 0) + 1
-
-    # Pasamos el contador a una lista de pares (IDLibro, cantidad_de_prestamos)
-    pares = []
-    for id_libro in conteo:
-        pares.append((id_libro, conteo[id_libro]))
-
-    # Ordenamos de mayor a menor según la cantidad de préstamos
-    pares_ordenados = sorted(pares, key=lambda par: par[1], reverse=True)
-
-    def titulo_de(id_libro):
-        """Busca el título del libro recorriendo la lista por IDLibro."""
-        for libro in libros:
-            if libro["IDLibro"] == id_libro:
-                return libro["Titulo"]
-        return f"(ID {id_libro})"
-
-    print(f"🔝 Más solicitados:")
-    posicion = 1
-    for id_libro, veces in pares_ordenados[:cantidad]:
-        print(f"   {posicion}º) {titulo_de(id_libro)} → {veces} préstamo(s)")
-        posicion += 1
-
-    print(f"🔻 Menos solicitados:")
-    posicion = 1
-    # Los últimos de la lista ordenada, mostrados de menor a mayor
-    for id_libro, veces in reversed(pares_ordenados[-cantidad:]):
-        print(f"   {posicion}º) {titulo_de(id_libro)} → {veces} préstamo(s)")
-        posicion += 1

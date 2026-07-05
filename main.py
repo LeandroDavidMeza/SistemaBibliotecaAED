@@ -2,6 +2,7 @@ from persistencia import asegurar_directorio, cargar_datos, guardar_datos
 import libros as mod_libros
 import usuarios as mod_usuarios
 import prestamos as mod_prestamos
+import estadisticas as mod_estadisticas 
 
 # Configuración de las rutas para guardar los archivos de texto
 RUTA_DATOS = 'datos/'
@@ -15,14 +16,17 @@ def menu_estadisticas(libros, usuarios, prestamos):
     print("1. Estadísticas generales")
     print("2. Top 3 libros con mayor stock")
     print("3. Libros más y menos solicitados")
-    sub = input("Seleccione una opción: ")
+    print("4. Reporte de multas (total, por socio y por libro)")
+    sub = input("Seleccione una opción: ").strip()
 
     if sub == '1':
-        mod_prestamos.mostrar_estadisticas_sistema(libros, usuarios, prestamos)
+        mod_estadisticas.mostrar_estadisticas_sistema(libros, usuarios, prestamos)
     elif sub == '2':
-        mod_libros.top_libros_por_stock(libros)
+        mod_estadisticas.top_libros_por_stock(libros)
     elif sub == '3':
-        mod_prestamos.libros_mas_y_menos_solicitados(prestamos, libros)
+        mod_estadisticas.libros_mas_y_menos_solicitados(prestamos, libros)
+    elif sub == '4':
+        mod_estadisticas.mostrar_reporte_multas(prestamos, usuarios, libros)
     else:
         print("Opción no válida.")
 

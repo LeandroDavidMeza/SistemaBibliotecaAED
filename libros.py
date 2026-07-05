@@ -79,22 +79,3 @@ def listar_libros(libros):
             f"Título: {libro['Titulo']} | Autor: {libro['Autor']} | "
             f"Stock total: {libro['StockTotal']} | Disponibles: {libro['StockDisponible']}"
         )
-
-
-def top_libros_por_stock(libros, cantidad=3):
-    """
-    ESTADÍSTICA (a): recorre la lista de libros consultando la cantidad
-    (StockTotal) de cada uno y devuelve los 'cantidad' libros con mayor stock.
-    """
-    print(f"\n--- 🏆 TOP {cantidad} LIBROS CON MAYOR STOCK ---")
-    if not libros:
-        print("No hay libros cargados para analizar.")
-        return
-
-    # Ordenamos una copia de la lista de mayor a menor según StockTotal
-    ordenados = sorted(libros, key=lambda libro: int(libro["StockTotal"]), reverse=True)
-
-    posicion = 1
-    for libro in ordenados[:cantidad]:
-        print(f"{posicion}º) {libro['Titulo']} → {libro['StockTotal']} ejemplares")
-        posicion += 1
