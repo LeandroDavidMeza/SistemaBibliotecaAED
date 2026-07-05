@@ -67,3 +67,12 @@ def generar_nuevo_id(lista, clave_id):
         if id_actual > maximo:
             maximo = id_actual
     return maximo + 1
+
+def dias_entre(fecha_inicio, fecha_fin):
+    """
+    Días entre dos fechas en formato DD/MM/AAAA (ya validadas por leer_fecha).
+    Positivo si fecha_fin es posterior; negativo si es anterior.
+    """
+    d1 = datetime.strptime(fecha_inicio, "%d/%m/%Y")
+    d2 = datetime.strptime(fecha_fin, "%d/%m/%Y")
+    return (d2 - d1).days

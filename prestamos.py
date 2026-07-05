@@ -3,7 +3,7 @@
 # Cada préstamo es un diccionario y todos comparten las mismas claves.
 # Este módulo "enlaza" usuarios con libros a través de sus ID.
 # ---------------------------------------------------------------------------
-from utilidades import leer_texto, leer_entero, leer_fecha, generar_nuevo_id
+from utilidades import leer_texto, leer_entero, leer_fecha, generar_nuevo_id, dias_entre
 from usuarios import buscar_usuario
 from libros import buscar_libro
 
@@ -89,22 +89,23 @@ def registrar_devolucion_sistema(libros, prestamos):
         return
 
     f_real = leer_fecha("Fecha real de devolución (DD/MM/AAAA): ")
-    dias_demora = leer_entero("Días de demora (0 si entregó a tiempo): ", minimo=0)
 
-    # Actualizamos el estado del préstamo
     prestamo["FechaDevolucionReal"] = f_real
     prestamo["Estado"] = "Devuelto"
 
-    # Devolvemos el ejemplar al stock disponible (recorriendo por IDLibro)
+    # Devolvemos el ejemplar al stock disponible
     for libro in libros:
         if libro["IDLibro"] == prestamo["IDLibro"]:
             libro["StockDisponible"] = str(int(libro["StockDisponible"]) + 1)
             break
 
+    # Multa automática: días de atraso (calculados) × costo por día (ingresado)
+    dias_demora = dias_entre(prestamo["FechaDevolucionPactada"], f_real)
     if dias_demora > 0:
-        monto_multa = dias_demora * 500
-        print(f"⚠️ Registro con {dias_demora} día(s) de demora.")
-        print(f"💰 Monto de la multa a pagar: ${monto_multa}")
+        costo_dia = leer_entero(f"Se registran {dias_demora} día(s) de atraso. Costo por día: $", minimo=0)
+        monto_multa = dias_demora * costo_dia
+        print(f"⚠️ Devolución con {dias_demora} día(s) de atraso.")
+        print(f"💰 Multa: {dias_demora} x ${costo_dia} = ${monto_multa}")
     else:
         print("✔️ Devuelto a tiempo y sin multas.")
 
