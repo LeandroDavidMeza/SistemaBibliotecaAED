@@ -3,7 +3,7 @@
 # Cada préstamo es un diccionario y todos comparten las mismas claves.
 # Este módulo "enlaza" usuarios con libros a través de sus ID.
 # ---------------------------------------------------------------------------
-from utilidades import leer_texto, leer_entero, leer_fecha, generar_nuevo_id, dias_entre
+from utilidades import leer_texto, leer_entero, leer_fecha, generar_nuevo_id, dias_entre, leer_decimal
 from usuarios import buscar_usuario
 from libros import buscar_libro
 
@@ -108,7 +108,7 @@ def registrar_devolucion_sistema(libros, prestamos):
     # Multa automática: días de atraso (calculados) × costo por día (ingresado)
     dias_demora = dias_entre(prestamo["FechaDevolucionPactada"], f_real)
     if dias_demora > 0:
-        costo_dia = leer_entero(f"Se registran {dias_demora} día(s) de atraso. Costo por día: $", minimo=0)
+        costo_dia = leer_decimal(f"Se registran {dias_demora} día(s) de atraso. Costo por día: $", minimo=0)
         monto_multa = dias_demora * costo_dia
         prestamo["Multa"] = str(monto_multa)          # <-- se guarda
         print(f"⚠️ Devolución con {dias_demora} día(s) de atraso.")

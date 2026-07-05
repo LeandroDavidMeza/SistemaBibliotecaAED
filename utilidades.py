@@ -77,3 +77,24 @@ def dias_entre(fecha_inicio, fecha_fin):
     d1 = datetime.strptime(fecha_inicio, "%d/%m/%Y")
     d2 = datetime.strptime(fecha_fin, "%d/%m/%Y")
     return (d2 - d1).days
+
+def leer_decimal(mensaje, minimo=None, maximo=None):
+    """
+    Pide un número con decimales por teclado usando try/except.
+    Acepta coma o punto como separador decimal (12,50 o 12.50).
+    Permite fijar un mínimo y un máximo opcionales.
+    """
+    while True:
+        entrada = input(mensaje).strip().replace(",", ".")
+        try:
+            valor = float(entrada)
+        except ValueError:
+            print("❌ Error: debe ingresar un número (ej: 12.50).")
+            continue
+
+        if minimo is not None and valor < minimo:
+            print(f"❌ El valor no puede ser menor que {minimo}.")
+        elif maximo is not None and valor > maximo:
+            print(f"❌ El valor no puede ser mayor que {maximo}.")
+        else:
+            return valor
