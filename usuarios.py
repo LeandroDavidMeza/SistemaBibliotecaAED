@@ -1,4 +1,4 @@
-from utilidades import leer_texto
+from utilidades import leer_texto, generar_nuevo_id
 
 # Estructura homogénea requerida por la cátedra para el diccionario de usuarios
 CAMPOS_USUARIOS = ["IDUsuario", "DNI", "Nombre", "Apellido", "Email", "Telefono"]
@@ -33,7 +33,7 @@ def agregar_usuario(usuarios):
             return # Cancelamos el alta si ya está registrado
             
     # ID automático incremental basado en la cantidad actual de usuarios registrados
-    nuevo_id = len(usuarios) + 1
+    nuevo_id = generar_nuevo_id(usuarios, "IDUsuario")
     
     nombre = leer_texto("Nombre: ")
     apellido = leer_texto("Apellido: ")
