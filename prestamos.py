@@ -57,6 +57,11 @@ def registrar_prestamo_sistema(usuarios, libros, prestamos):
     f_salida = leer_fecha("Fecha de salida (DD/MM/AAAA): ")
     f_pactada = leer_fecha("Fecha pactada de devolución (DD/MM/AAAA): ")
 
+    # La devolución pactada tiene que caer después de la salida
+    if dias_entre(f_salida, f_pactada) <= 0:
+        print("❌ Error: la fecha pactada debe ser posterior a la de salida.")
+        return
+
     # 5. ID automático e incremental para el préstamo
     nuevo_id = generar_nuevo_id(prestamos, "IDPrestamo")
     nuevo_p = crear_prestamo(nuevo_id, libro["IDLibro"], usuario["IDUsuario"], f_salida, f_pactada)
